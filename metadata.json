@@ -1,0 +1,6 @@
+{
+  "name": "BARKLEY — Cinematic Production Directive 001",
+  "description": "The Customer Approaches: A high-fidelity Three.js cinematic product demonstration for the BARKLEY 27-inch portrait intelligent retail kiosk.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
