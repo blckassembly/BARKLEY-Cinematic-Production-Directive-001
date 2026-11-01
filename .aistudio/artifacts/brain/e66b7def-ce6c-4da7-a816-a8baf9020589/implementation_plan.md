@@ -1,139 +1,134 @@
-# BARKLEY — Cinematic Production Directive 001: The Customer Approaches
+# BARKLEY — 3-Minute Cinematic Kiosk Presentation (Revised Architecture)
 
-A high-fidelity Three.js cinematic simulation delivering the opening 20-second sequence of the BARKLEY intelligent retail kiosk product film, complete with a rigged adult male customer, accurate kiosk industrial design, deterministic time-driven animation, and a professional director suite.
+A streamlined, human-centered 3-minute cinematic product film for the BARKLEY 27-inch portrait intelligent POS kiosk. This production removes the virtual character and hand models completely, replacing them with a customer-eye POV camera that glides smoothly between architectural showroom views, eye-level touchscreen perspectives, and close-ups of the ID scanner, biometric camera, NFC payment reader, and receipt printer. The 27-inch display advances automatically across the full checkout experience using high-resolution full-frame UI captures paired with animated dynamic overlays.
 
 ## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> The following key decisions have been aligned based on your selections and will guide the production pipeline:
+> The following architectural directives have been confirmed and will govern the updated build:
 
-- **Confirmed Decision 1 (Timeline & Controls)**: Interactive Director Suite featuring a frame-accurate scrubber (00:00.00 to 00:20.00 / 0 to 600 frames at 30 fps), keyframe markers, playback speed multiplier (0.25x to 2x), and a Free-Cam / Cinematic Camera mode toggle.
-- **Confirmed Decision 2 (Environment Atmosphere)**: Luxury cannabis retail atelier (Barkley flagship style) featuring warm white architectural walls, fluted oak millwork, warm-lit glass product showcases with amber tincture jars and curated botanicals, polished terrazzo floor with subtle specular reflections, and soft recessed ceiling downlights.
-- **Confirmed Decision 3 (Cinematography Framing)**: Authentic 3-shot cinematic progression matching optical focal lengths: Shot 1 (00:00–00:05, 24mm equivalent wide architectural establishing shot), Shot 2 (00:05–00:12, 35mm over-the-shoulder tracking shot), and Shot 3 (00:12–00:20, 50mm medium interaction close-up capturing posture deceleration, gaze focus, right-arm reaching, screen contact, and settle).
+- **Confirmed Decision 1 (Complete Removal of Human/Hand Mesh)**: Virtual character, humanoid limbs, and hand meshes are completely removed. This eliminates complex rigging, unnatural joint postures, and z-fighting, focusing 100% of GPU resources and audience attention on the BARKLEY hardware and interface.
+- **Confirmed Decision 2 (Customer-POV Camera Choreography)**: In place of a visible human, the camera occupies the customer's eye-level perspective, gliding smoothly between wide establishing angles and hardware close-ups (ID scanner, biometric camera, contactless payment bay, receipt mouth).
+- **Confirmed Decision 3 (High-Res Full-Frame UI with Dynamic Overlays)**: The 27-inch portrait screen operates on an automatic 180-second scripted timeline. It renders high-resolution full-frame captures of the uploaded designs with live vector overlays (glowing active states, ripple feedback, dynamic keypad typing, smooth cart summary drawer, and order pickup badges).
+- **Confirmed Decision 4 (Ambient Dispensary Soundscape)**: Ambient luxury dispensary room tone paired with procedural Web Audio capacitive chimes, ID scanner laser chirps, biometric verification tone, NFC contactless ping, and thermal receipt feed sounds.
 
 ---
 
 ## 1. Overview & Core Concept
 
-- **What It Does**: Simulates a photorealistic, physically plausible human arrival and initial kiosk interaction sequence. An adult customer enters the luxury cannabis dispensary, walks naturally toward the monolithic 27-inch portrait BARKLEY kiosk, plants his feet 70 cm from the display, settles his gaze, reaches with his right hand using inverse kinematics, and touches the interactive "Get Started" control on the screen, triggering tactile button depression, ripple feedback, and ending in an approved idle pose ready for Scene 002 (Identity Verification).
-- **Target Audience & Purpose**: Executive presentation, investor demo, and broadcast-grade product video generation for BARKLEY Intelligent POS.
-- **Key Value**: Replaces disconnected interface animations and static renders with a living, dimensional human-scale experience film that can be scrubbed in real-time or exported deterministically frame-by-frame.
+- **What It Does**: Delivers a broadcast-ready 3-minute (180-second) cinematic presentation of the BARKLEY 27-inch portrait intelligent POS kiosk inside a luxury cannabis atelier. Viewers experience the complete customer journey from a first-person perspective as the screen wakes up, verifies age and ID, unlocks the curated flower/edibles catalog, displays dosage advisories, animates a cart summary, executes simulated contactless payment, and dispenses a receipt.
+- **Target Audience & Purpose**: YouTube presentation, executive showcase, investor demonstration, and trade-show kiosk reel.
+- **Key Value**: Crisp, unencumbered visual clarity. Eliminates distracting humanoid animation while preserving a deeply immersive, first-person shopping experience.
 
 ---
 
 ## 2. User Experience & Visual Design
 
-### Cinematic Sequence Breakdown (00:00 – 00:20)
+### 3-Minute Master Timeline Breakdown (00:00 – 03:00 / 5,400 Frames at 30 FPS)
 
 ```
-00:00 ── 24mm Wide Establishing Shot ── 00:05 ── 35mm Tracking Shot ── 00:12 ── 50mm Interaction Shot ── 00:20
-[Customer enters from left]             [Forward walking cycle]         [Decelerates, plants feet]  [Touches 'Get Started']
-[BARKLEY kiosk hero spotlight]          [Head turns toward kiosk]       [Gaze locks onto screen]    [Button glows & clicks]
+00:00 ──── Reveal & Attract ──── 00:20 ──── Age Gate ──── 00:45 ──── ID & Face Scan ──── 01:05
+[Wide luxury corner shot]       [Camera glides to POV]    [Zoom to intake scanner]
+[Luminous 27" screen glow]       [Keypad inputs DOB]       [Biometric camera beam]
+
+01:05 ──── Catalog Unlock ──── 01:35 ──── Dosage Advisory ── 02:05 ──── Cart & Payment ── 02:35
+[The Atelier product menu]      [Botanical Gummies 360]   [Smooth Cart Summary popup]
+[Category navigation]           [THC/CBD onset advisory]  [NFC terminal tap & ding]
+
+02:35 ──── Order Confirmed ──── 02:50 ──── Pickup & Handoff ── 03:00
+[Pickup reference #2847]        [Zoom to receipt slot]
+[Dispensing paper receipt]      [Wide architectural closing]
 ```
 
-1. **00:00–00:05 — Establishing Composition (Shot 1, 24mm / FOV 73.7°)**:
-   - High-end architectural framing from customer's entry flank.
-   - The BARKLEY kiosk stands tall as the focal centerpiece under a controlled warm spot beam.
-   - Customer enters screen-left with purposeful forward momentum.
-2. **00:05–00:12 — Walking Approach (Shot 2, 35mm / FOV 54.4°)**:
-   - Camera cuts to a dynamic tracking shot positioned over the customer's right shoulder, gliding forward along the walking vector.
-   - Character displays natural skeletal locomotion: alternating leg stride, heel-strike to toe-off with zero floor slipping, synchronized arm swing with relaxed elbows, subtle pelvic oscillation, and head turning 22 degrees to fixate on the illuminated kiosk.
-3. **00:12–00:17 — Deceleration & Arrival (Shot 3, 50mm / FOV 39.6°)**:
-   - Camera frames the customer's upper body, right arm, and the 27-inch portrait screen in crisp spatial continuity.
-   - Walking speed smoothly dampens; final step plants firmly at 70 cm from the touchscreen surface.
-   - Torso straightens, shoulders drop naturally, and eye gaze aligns with the "Welcome to BARKLEY" greeting.
-4. **00:17–00:20 — First Human Interaction (50mm Interaction Focus)**:
-   - Weight shifts slightly onto the forward foot.
-   - Right shoulder flexes forward, elbow extends, forearm pronates, and index finger targets the virtual coordinates of the "Get Started" button on the 27" display.
-   - Fingertip makes physical contact at $t = 18.2\text{s}$, triggering the button's haptic compression, highlight flash, and transition state.
-   - Hand smoothly retracts to a resting position at $t = 19.5\text{s}$, leaving the customer standing composed before the kiosk as the sequence settles on frame 600.
+### Scripted 8-Stage Interaction Schedule
 
-### Kiosk Industrial Design Authority (Preserving Reference Proportions)
-
-- **27-inch Portrait Display (9:16 Aspect Ratio)**: Micro-bezel glass surface with realistic anti-glare specular finish and dynamic procedural canvas texture rendering the BARKLEY Welcome UI.
-- **Upper Bezel Sensor Bar**: Recessed identity camera lens, IR emitter array, and subtle metallic "BARKLEY" laser-etched typography.
-- **Mid-Tier Hardware Bay**:
-  - Horizontal ID document scanner slot with illuminated intake mouth.
-  - Payment terminal NFC contactless reader face with tactile card ledge.
-  - Recessed thermal receipt printer mouth with subtle brushed stainless lip.
-- **Enclosure & Pedestal**: Sculpted dark graphite / matte black anodized aluminum enclosure with gentle rear radii and a heavy floor-weighted stability base with soft contact shadows.
-
-### Director Suite Interface (Non-Occluding Dock)
-
-- **Master Time Readout**: High-contrast, tabular timestamp (`00:14.28 / 00:20.00`) and frame counter (`Frame 428 / 600`).
-- **Interactive Scrubber**: Full-width draggable timeline with color-coded keyframe markers for Shot 1, Shot 2, Shot 3, Deceleration, and Touch Contact.
-- **Playback Controls**: Play/Pause, Replay, Frame Step Backwards ($\Delta -1$), Frame Step Forward ($\Delta +1$), and Speed Selector (0.25x, 0.5x, 1x, 2x).
-- **Camera Mode Switcher**:
-  - `Cinematic Cut` (Automatic director cuts across 24mm, 35mm, and 50mm).
-  - `Shot 1 (Wide 24mm)`, `Shot 2 (Tracking 35mm)`, `Shot 3 (Close 50mm)`.
-  - `Free Director Cam` (Smooth OrbitControls to inspect character kinematics and kiosk geometry from any angle).
-- **Collapsible Cinema Drawer**: Single-click toggle (`▾ Hide Controls` / `H` shortcut) to allow full unencumbered fullscreen cinema viewing.
+| Timestamp | Phase | Screen Experience | Camera Behavior & Focus | Hardware Cues |
+| :--- | :--- | :--- | :--- | :--- |
+| **00:00–00:20** | **Cinematic Reveal** | Attract Loop: BARKLEY luxury brandmark & glowing "Get Started" | 35mm wide architectural glide orbiting the corner atelier | Display backlight pulses softly; floor terrazzo reflections |
+| **00:20–00:45** | **Screen Activation & DOB** | Screen wakes; age verification keypad inputs birth year (1998) | Camera glides into 50mm customer eye-level POV | Capacitive touch chimes as digits activate |
+| **00:45–01:05** | **ID & Camera Verification** | "Insert ID" guidance screen $\to$ Upper camera biometric match | Moves down to ID scanner slot, then tilts up to top camera | ID mouth glows emerald; facial recognition targeting box |
+| **01:05–01:35** | **Product Catalog** | The Atelier collection unlocks; categories (Gummies, Flower, Vapes) | Eye-level display POV with gentle breathing float | Category cards highlight with smooth selection ripples |
+| **01:35–02:05** | **Product Details & Advisory** | Botanical Fruit Gummies ($24.00) $\to$ Edibles dosage onset advisory | Intimate 50mm focus on dosage chart & safety warning | "Continue" button pulses with tactile confirmation |
+| **02:05–02:35** | **Cart Summary & Payment** | Smooth animated Cart Summary drawer pops up $\to$ Total $148.24 | Tilts down to frame NFC payment reader | NFC symbol pulses cyan $\to$ emerald; payment chime |
+| **02:35–02:50** | **Order Confirmation** | "Thank You" screen with pickup reference #2847 | Macro close-up of receipt mouth | Thermal printer feeds receipt with mechanical sound |
+| **02:50–03:00** | **Pickup & Closing Shot** | Counter pickup directions $\to$ BARKLEY brand closing lockup | Slow pull-back to wide architectural showroom angle | Dispensary lighting dims gently to spotlight the kiosk |
 
 ---
 
 ## 3. Key Product Decisions & Trade-Offs
 
-- **Decision 1: Procedural Rigged Character vs. External Model File**
-  - *Chosen Approach*: Multi-segment articulated anatomical human model constructed with hierarchical Three.js bone kinematics (Pelvis, Spine, Chest, Neck, Head, Clavicles, Shoulders, Elbows, Wrists, Fingers, Hips, Knees, Ankles, Feet).
-  - *Why*: Eliminates unhosted external `.glb` download failures (Zero-404 directive), guarantees instantaneous load without network latency, and gives 100% deterministic mathematical control over bone angles and touch coordinate alignment across all frames.
-- **Decision 2: Time-Driven Deterministic Kinematics**
-  - *Chosen Approach*: All character trajectories, joint rotations, camera matrices, and screen shader uniforms are computed as pure mathematical functions of elapsed timeline seconds $t \in [0, 20]$.
-  - *Why*: Enables instant scrubbing to any exact millisecond, seamless frame-by-frame export, and perfectly repeatable animations without cumulative drift or state corruption.
-- **Decision 3: Procedural High-Fidelity Dispensary Environment**
-  - *Chosen Approach*: Built with modular architectural components (slatted oak partitions, glass cabinets with amber glass jars and botanicals, travertine flooring with normal maps, recessed warm spotlights) styled after the Barkley flagship dispensary references.
-  - *Why*: Delivers an authentic luxury retail context while maintaining 60 FPS performance and avoiding heavy asset downloads.
+- **Decision 1: Complete Elimination of Character & Hand Mesh**
+  - *Chosen Approach*: Delete `/src/scene/hand.ts` and `/src/scene/character.ts` dependencies from the scene manager.
+  - *Why*: Procedural skeletal human meshes in Three.js distract from the product hardware and interface. Removing them guarantees 60 FPS performance, eliminates unnatural poses, and lets viewers imagine themselves in the customer's shoes.
+- **Decision 2: Cinematic Camera POV as the Human Proxy**
+  - *Chosen Approach*: The virtual camera acts as the customer's eyes. It steps toward the kiosk, glances down at the scanner, looks up at the camera, and focuses on the screen.
+  - *Why*: Retains the human-centered scale and ergonomic perspective without rendering a humanoid model.
+- **Decision 3: Independent Kiosk Screen State Machine**
+  - *Chosen Approach*: The 27-inch portrait screen texture runs on an independent state machine driven by master timeline seconds $t \in [0, 180]$.
+  - *Why*: Decouples hardware rendering from interface state. The camera can zoom, tilt, or orbit freely, while the screen advances its checkout steps deterministically.
+- **Decision 4: High-Res Mockups with Layered Vector Overlays**
+  - *Chosen Approach*: Render uncropped, proportionally scaled high-resolution UI images with dynamic vector graphics (glowing buttons, expanding ripples, animated drawers, and live text).
+  - *Why*: Combines the beauty of the uploaded Figma/user designs with the responsive dynamism of a real POS kiosk.
 
 ---
 
-## 4. Technical Architecture & Data Strategy
+## 4. Technical Architecture & Component Pipeline
 
-### System Architecture & Motion Pipeline
+### Architecture Diagram
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                        Master Director Timeline                        │
-│             State: { currentTime: 0..20, isPlaying, speed, cameraMode }  │
+│             State: { currentTime: 0..180, isPlaying, speed, cameraMode } │
 └───────────────────┬────────────────────────────────┬───────────────────┘
                     │                                │
                     ▼                                ▼
        ┌────────────────────────┐      ┌───────────────────────────┐
-       │ Three.js Render Engine │      │ Director Suite UI Overlay │
-       └────────────┬───────────┘      └───────────────────────────┘
-                    │
-   ┌────────────────┴────────────────────────────────────────┐
-   │                                                         │
-   ▼                                                         ▼
-┌───────────────────────────┐             ┌──────────────────────────┐
-│ Character Kinematic Rig   │             │ BARKLEY 27" Kiosk & UI   │
-│ - Trajectory & Gait Cycle │             │ - Monolithic Chassis     │
-│ - Arm & Hand Reach IK     │             │ - ID/NFC/Printer Modules │
-│ - Head Gaze Tracking      │             │ - Interactive Canvas UI  │
-└───────────────────────────┘             └──────────────────────────┘
-               │                                       │
-               └───────────────────┬───────────────────┘
-                                   │
-                                   ▼
-                   ┌───────────────────────────────┐
-                   │ Cinematic Camera Director     │
-                   │ - 24mm Wide (00:00–00:05)     │
-                   │ - 35mm Tracking (00:05–00:12) │
-                   │ - 50mm Closeup (00:12–00:20)  │
-                   │ - Smooth Exponential Damping  │
-                   └───────────────────────────────┘
+       │ Three.js Scene Engine  │      │ Director Suite UI Overlay │
+       └────────────┬───────────┘      │ - 8 Stage Jump Buttons    │
+                    │                  │ - 180s Master Scrubber    │
+    ┌───────────────┴───────────────┐  │ - Camera Angle Switcher   │
+    ▼                               ▼  └───────────────────────────┘
+┌────────────────────────┐    ┌──────────────────────────┐
+│ Camera Director        │    │ BARKLEY POS Kiosk 3D     │
+│ - Customer Eye POV     │    │ - 27" Portrait Screen    │
+│ - ID Scanner Macro     │    │ - High-Res Emissive Mesh │
+│ - NFC Terminal Focus   │    │ - ID Scanner / NFC / Rec │
+│ - Smooth Lerp Damping  │    └────────────┬─────────────┘
+└────────────────────────┘                 │
+                                           ▼
+                              ┌──────────────────────────┐
+                              │ Kiosk Screen Engine      │
+                              │ - Full-Frame UI Mockups  │
+                              │ - Animated Cart Drawer   │
+                              │ - Dynamic Touch Ripples  │
+                              │ - Live Typography/Badges │
+                              └──────────────────────────┘
 ```
 
-### Component State & Kinematic Mapping
+### Component & File Strategy
 
-- **Gait Generator ($t \in [0, 14]$)**:
-  - Stride frequency $\omega = 2\pi \times 0.95\text{ rad/s}$.
-  - Foot position $y_{\text{foot}}(t) = \max(0, \sin(\omega t) \cdot h_{\text{step}})$, ensuring continuous grounding and zero foot sliding.
-  - Forward velocity $v(t)$ begins at $1.2\text{ m/s}$ and smoothly decelerates via smoothstep between $t = 11.5$ and $t = 14.0$, settling at position $(0, 0, 0.72)$ relative to the kiosk face.
-- **Touch Reach & Inverse Kinematics ($t \in [14, 20]$)**:
-  - Weight transfer forward at $t = 16.5$.
-  - Right shoulder rotates forward, elbow unfolds, wrist aligns, and index tip interpolates toward screen target $(0, 1.18, 0.02)$.
-  - Screen contact detected at $t = 18.2$, toggling `isTouched` flag on the canvas texture to trigger button scale down, ripple ring propagation, and "Verification Ready" indicator.
-- **Lighting Rig**:
-  - Warm key light ($3200\text{K}$, $I = 2.4$, castShadow enabled with PCFSoftShadowMap).
-  - Cool retail hemisphere fill ($4500\text{K}$ sky, $2800\text{K}$ floor).
-  - Dedicated kiosk accent spot ($3000\text{K}$, focused beam highlighting brushed aluminum chamfers).
-  - Soft procedural contact shadow disc beneath kiosk and character feet.
+1. **`src/scene/types.ts`**:
+   - Update `TOTAL_DURATION` from 118s to 180s (3 minutes, 5,400 frames).
+   - Reconfigure `WORKFLOW_STEPS` into the 8 revised stages matching the user's table (00:00 to 03:00).
+   - Remove hand target coordinates; add camera focus targets and screen overlay states.
+2. **`src/scene/sceneManager.ts`**:
+   - Remove `createInteractiveHand` and character references.
+   - Wire the 180s master clock to the camera director and kiosk screen engine.
+   - Synchronize audio triggers (chimes, scanner chirp, payment chime, receipt feed).
+3. **`src/scene/cameraDirector.ts`**:
+   - Re-architect camera choreography to provide:
+     - `cinematic`: Scripted 8-stage customer POV gliding smoothly between eye-level, scanner, camera, and payment terminal.
+     - `screen_focus`: Fixed eye-level 50mm lens on the 27" display.
+     - `hardware_focus`: Macro view of ID scanner, NFC reader, and receipt mouth.
+     - `free`: Unrestricted 360° OrbitControls.
+4. **`src/scene/screenTextures.ts`**:
+   - Maintain 1080×1920 portrait canvas texture with emissive glow (`emissiveIntensity: 0.95`).
+   - Cleanly map high-res mockups with proportional scaling (zero cropping).
+   - Render animated overlays: glowing activated buttons, keypad keystrokes, biometric scan grid, animated cart drawer slide-up, and green order checkmark.
+5. **`src/scene/audioSynth.ts`**:
+   - Ambient dispensary room tone + procedural sound design for capacitive touches, ID scan beep, payment ding, and paper receipt feed.
+6. **`src/components/DirectorSuite.tsx`**:
+   - Update timeline to 03:00.00 (180s).
+   - Update stage buttons to the 8 revised scenes.
+   - Provide camera controls, speed multipliers (0.5x, 1x, 1.5x, 2x), and snapshot export.

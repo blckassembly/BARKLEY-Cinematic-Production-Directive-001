@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { CameraMode, WORKFLOW_STEPS, WorkflowStep } from './types';
+import { CameraMode, WORKFLOW_STEPS } from './types';
 
 export interface CameraDirector {
   camera: THREE.PerspectiveCamera;
@@ -23,15 +23,14 @@ export function createCameraDirector(
   canvas: HTMLCanvasElement,
   aspect: number
 ): CameraDirector {
-  // Starts directly looking at the standard 27" portrait display
-  const camera = new THREE.PerspectiveCamera(46.0, aspect, 0.1, 100);
-  camera.position.set(0.42, 1.38, 0.98);
-  camera.lookAt(0.35, 1.36, -0.32);
+  const camera = new THREE.PerspectiveCamera(44.0, aspect, 0.1, 100);
+  camera.position.set(0, 1.25, 1.35);
+  camera.lookAt(0, 1.25, 0);
 
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
-  controls.target.set(0.35, 1.36, -0.32);
+  controls.target.set(0, 1.25, 0);
   controls.maxPolarAngle = Math.PI / 2 - 0.02;
   controls.minDistance = 0.3;
   controls.maxDistance = 15;
@@ -46,8 +45,8 @@ export function createCameraDirector(
       controls.update();
       return {
         lensMm: 45,
-        shotName: 'Free 360° Orbit',
-        description: 'Drag to orbit around the kiosk, scroll to zoom, right-click to pan.',
+        shotName: 'Free 360° Showroom Orbit',
+        description: 'Drag to orbit around the display, scroll to zoom, right-click to pan.',
         stepNumber: 'FREE',
       };
     }
@@ -55,32 +54,32 @@ export function createCameraDirector(
     controls.enabled = false;
 
     if (mode === 'screen_focus') {
-      camera.fov = 44.0;
+      camera.fov = 42.0;
       camera.updateProjectionMatrix();
-      camera.position.set(0.38, 1.38, 0.92);
-      camera.lookAt(0.35, 1.36, -0.32);
+      camera.position.set(0, 1.25, 1.28);
+      camera.lookAt(0, 1.25, 0);
       return {
         lensMm: 50,
-        shotName: 'Direct Screen View',
+        shotName: 'Direct Screen Perspective',
         description: 'Direct eye-level perspective of the 27-inch portrait touchscreen.',
         stepNumber: 'SCREEN',
       };
     }
 
     if (mode === 'hardware_focus') {
-      camera.fov = 40.0;
+      camera.fov = 38.0;
       camera.updateProjectionMatrix();
-      camera.position.set(0.35, 1.15, 0.65);
-      camera.lookAt(0.35, 0.98, -0.28);
+      camera.position.set(0, 1.15, 1.10);
+      camera.lookAt(0, 1.15, 0);
       return {
         lensMm: 60,
-        shotName: 'Hardware Bay View',
-        description: 'Macro focus on the ID scanner, NFC payment reader, and receipt printer.',
+        shotName: 'Lower Screen & Checkout Focus',
+        description: 'Close focus on the cart summary and crypto checkout interaction.',
         stepNumber: 'HW',
       };
     }
 
-    // Default Cinematic mode: Starts looking at standard screen, dynamically tracking steps
+    // Default Cinematic Customer POV mode:
     let activeStep = WORKFLOW_STEPS[0];
     for (let i = WORKFLOW_STEPS.length - 1; i >= 0; i--) {
       if (time >= WORKFLOW_STEPS[i].startTime) {
@@ -89,49 +88,73 @@ export function createCameraDirector(
       }
     }
 
-    // Tailored camera framing for each step
-    if (activeStep.id === '03_scan_id') {
-      // Tilt down toward ID scanner intake mouth
-      _camTarget.set(0.32, 1.22, 0.82);
-      _lookTarget.set(0.31, 1.02, -0.25);
-      camera.fov = 44.0;
-    } else if (activeStep.id === '04_camera_verify') {
-      // Tilt up toward upper camera sensor
-      _camTarget.set(0.42, 1.55, 0.95);
-      _lookTarget.set(0.35, 1.62, -0.3);
-      camera.fov = 42.0;
-    } else if (activeStep.id === '09_shopping_bag') {
-      // Cinematic intimate framing on the 27" display as the Cart Summary pops up
-      _camTarget.set(0.38, 1.34, 0.90);
-      _lookTarget.set(0.35, 1.33, -0.32);
-      camera.fov = 43.5;
-    } else if (activeStep.id === '10_checkout_pay') {
-      // Angle towards NFC payment reader
-      _camTarget.set(0.44, 1.22, 0.82);
-      _lookTarget.set(0.36, 1.02, -0.25);
-      camera.fov = 44.0;
-    } else if (activeStep.id === '12_receipt_handoff') {
-      // Framing receipt slot and full kiosk
-      _camTarget.set(0.48, 1.32, 1.1);
-      _lookTarget.set(0.35, 1.25, -0.32);
-      camera.fov = 48.0;
+    let targetFov = 44.0;
+    const subtleBreath = Math.sin(time * 0.4) * 0.008;
+
+    if (time < 20.0) {
+      // 0:00–0:20: Stage 1 — Approach & Reveal with screen front and center
+      const p = Math.min(1.0, time / 20.0);
+      const angle = (1.0 - p) * 0.18; // Smooth subtle approach
+      const dist = 1.65 - p * 0.35; // 1.65m smoothly gliding to 1.30m
+      _camTarget.set(
+        Math.sin(angle) * dist,
+        1.28 - p * 0.03,
+        Math.cos(angle) * dist
+      );
+      _lookTarget.set(0, 1.25, 0);
+      targetFov = 44.0;
+    } else if (time < 45.0) {
+      // 0:20–0:45: Stage 2 — Direct customer eye-level POV for DOB verification
+      _camTarget.set(subtleBreath, 1.25, 1.30);
+      _lookTarget.set(0, 1.25, 0);
+      targetFov = 43.5;
+    } else if (time < 65.0) {
+      // 0:45–1:05: Stage 3 — Camera / Face ID alignment
+      _camTarget.set(0, 1.30, 1.22);
+      _lookTarget.set(0, 1.30, 0);
+      targetFov = 42.0;
+    } else if (time < 95.0) {
+      // 1:05–1:35: Stage 4 — Product catalog browsing
+      _camTarget.set(subtleBreath, 1.25, 1.28);
+      _lookTarget.set(0, 1.25, 0);
+      targetFov = 43.5;
+    } else if (time < 125.0) {
+      // 1:35–2:05: Stage 5 — Product details & advisory
+      _camTarget.set(0, 1.24, 1.24);
+      _lookTarget.set(0, 1.24, 0);
+      targetFov = 43.0;
+    } else if (time < 155.0) {
+      // 2:05–2:35: Stage 6 — Cart summary and crypto checkout
+      _camTarget.set(0, 1.22, 1.22);
+      _lookTarget.set(0, 1.22, 0);
+      targetFov = 42.5;
+    } else if (time < 170.0) {
+      // 2:35–2:50: Stage 7 — Order confirmation (#2847)
+      _camTarget.set(0, 1.25, 1.26);
+      _lookTarget.set(0, 1.25, 0);
+      targetFov = 43.5;
     } else {
-      // Standard Screen View (starts here and stays centered on the 27" display)
-      // Gentle subtle breathing motion
-      const subtleBreath = Math.sin(time * 0.4) * 0.015;
-      _camTarget.set(0.42 + subtleBreath, 1.38, 0.98);
-      _lookTarget.set(0.35, 1.36, -0.32);
-      camera.fov = 45.0;
+      // 2:50–3:00: Stage 8 — Closing wide showroom pull-back
+      const p = (time - 170.0) / 10.0;
+      _camTarget.set(
+        p * 0.35,
+        1.25 + p * 0.15,
+        1.30 + p * 0.65
+      );
+      _lookTarget.set(0, 1.25, 0);
+      targetFov = 44.0 + p * 3.0;
     }
 
+    camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.08);
     camera.updateProjectionMatrix();
+
     camera.position.lerp(_camTarget, 0.08);
     controls.target.lerp(_lookTarget, 0.08);
     camera.lookAt(controls.target);
 
     return {
-      lensMm: 45,
-      shotName: `${activeStep.number}. ${activeStep.name}`,
+      lensMm: Math.round(50 * (44 / camera.fov)),
+      shotName: `${activeStep.number}. ${activeStep.name} (${activeStep.timecode})`,
       description: activeStep.description,
       stepNumber: activeStep.number,
     };

@@ -22,13 +22,21 @@ export default function App() {
   const [cameraMode, setCameraMode] = useState<CameraMode>('cinematic');
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [isHandVisible, setIsHandVisible] = useState<boolean>(false);
 
   // Active Camera & Shot Info for HUD
-  const [cameraInfo, setCameraInfo] = useState({
+  const [cameraInfo, setCameraInfo] = useState<{
+    lensMm: number;
+    shotName: string;
+    description: string;
+    stepNumber: string;
+    activeUiStateName?: string;
+  }>({
     lensMm: 45,
-    shotName: '01. Welcome Screen',
-    description: 'Kiosk screen displays the BARKLEY welcome screen with Get Started button.',
+    shotName: '01. Cinematic Reveal (0:00–0:20)',
+    description: 'Cinematic architectural reveal of the BARKLEY kiosk centerpiece and 27" display.',
     stepNumber: '01',
+    activeUiStateName: '01. Welcome to BARKLEY',
   });
 
   // Keep ref for use in animation loop without tearing down
@@ -93,6 +101,12 @@ export default function App() {
     });
   }, []);
 
+  const handleToggleHand = useCallback(() => {
+    if (!sceneManagerRef.current) return;
+    const next = sceneManagerRef.current.toggleHand();
+    setIsHandVisible(next);
+  }, []);
+
   const handleExportSnapshot = useCallback(() => {
     if (!sceneManagerRef.current) return;
     const dataUrl = sceneManagerRef.current.captureSnapshot();
@@ -117,6 +131,10 @@ export default function App() {
         case 'KeyR':
           e.preventDefault();
           handleReplay();
+          break;
+        case 'KeyV':
+          e.preventDefault();
+          handleToggleHand();
           break;
         case 'ArrowLeft':
           e.preventDefault();
@@ -229,8 +247,10 @@ export default function App() {
         shotName={cameraInfo.shotName}
         shotDescription={cameraInfo.description}
         stepNumber={cameraInfo.stepNumber}
+        activeUiStateName={cameraInfo.activeUiStateName}
         isMuted={isMuted}
         isCollapsed={isCollapsed}
+        isHandVisible={isHandVisible}
         onTogglePlay={handleTogglePlay}
         onReplay={handleReplay}
         onSeek={handleSeek}
@@ -238,6 +258,7 @@ export default function App() {
         onChangeSpeed={setPlaybackSpeed}
         onChangeCameraMode={setCameraMode}
         onToggleMute={handleToggleMute}
+        onToggleHand={handleToggleHand}
         onToggleCollapse={() => setIsCollapsed((prev) => !prev)}
         onExportSnapshot={handleExportSnapshot}
       />

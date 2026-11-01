@@ -21,8 +21,9 @@ import {
   X,
   Monitor,
   CreditCard,
-  Hand,
   ShoppingCart,
+  Sparkles,
+  Hand,
 } from 'lucide-react';
 import { CameraMode, TOTAL_DURATION, TOTAL_FRAMES, FPS, WORKFLOW_STEPS, WorkflowStep } from '../scene/types';
 import { UPLOADED_SCREENS } from '../scene/screenTextures';
@@ -36,8 +37,10 @@ interface DirectorSuiteProps {
   shotName: string;
   shotDescription: string;
   stepNumber: string;
+  activeUiStateName?: string;
   isMuted: boolean;
   isCollapsed: boolean;
+  isHandVisible: boolean;
   onTogglePlay: () => void;
   onReplay: () => void;
   onSeek: (time: number) => void;
@@ -45,6 +48,7 @@ interface DirectorSuiteProps {
   onChangeSpeed: (speed: number) => void;
   onChangeCameraMode: (mode: CameraMode) => void;
   onToggleMute: () => void;
+  onToggleHand: () => void;
   onToggleCollapse: () => void;
   onExportSnapshot: () => void;
 }
@@ -58,8 +62,10 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
   shotName,
   shotDescription,
   stepNumber,
+  activeUiStateName,
   isMuted,
   isCollapsed,
+  isHandVisible,
   onTogglePlay,
   onReplay,
   onSeek,
@@ -67,6 +73,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
   onChangeSpeed,
   onChangeCameraMode,
   onToggleMute,
+  onToggleHand,
   onToggleCollapse,
   onExportSnapshot,
 }) => {
@@ -85,7 +92,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
       .padStart(2, '0')}`;
   };
 
-  // Find active step
+  // Find active stage
   let activeStep = WORKFLOW_STEPS[0];
   for (let i = WORKFLOW_STEPS.length - 1; i >= 0; i--) {
     if (currentTime >= WORKFLOW_STEPS[i].startTime) {
@@ -105,33 +112,33 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
             </span>
             <span className="text-zinc-600">/</span>
             <span className="text-xs uppercase tracking-wider font-semibold text-zinc-300">
-              Interactive 27" POS Checkout Simulation
+              3-Minute Kiosk Film & POS Simulation
             </span>
           </div>
 
           <div className="flex items-center gap-2.5 text-xs text-zinc-400 font-mono-tabular">
             <span className="text-emerald-400 font-bold px-2 py-0.5 bg-emerald-950/70 border border-emerald-800/60 rounded">
-              STEP {activeStep.number} OF 12
+              STAGE {activeStep.number} OF 08 · {activeStep.timecode}
             </span>
             <span className="text-white font-semibold">{activeStep.name}</span>
             <span>·</span>
             <span className="text-zinc-300 flex items-center gap-1.5">
-              <Hand className="w-3.5 h-3.5 text-emerald-400 inline" />
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400 inline" />
               {activeStep.actionText}
             </span>
           </div>
         </div>
 
-        {/* Top Right Buttons */}
+        {/* Top Right Controls */}
         <div className="flex flex-col items-end gap-2 pointer-events-auto">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => onSeek(75.5)}
+              onClick={() => onSeek(125.0)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/90 hover:bg-emerald-900/90 text-emerald-200 text-xs font-semibold rounded-lg border border-emerald-500/70 shadow-md transition-all cursor-pointer hover:border-emerald-400"
-              title="Jump directly to checkout animation sequence"
+              title="Jump directly to Cart & Simulated Payment"
             >
               <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Cart Summary Animation (76s)</span>
+              <span>Cart & Pay (2:05)</span>
             </button>
 
             <button
@@ -142,7 +149,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
               className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/95 hover:bg-zinc-800 text-zinc-100 text-xs font-medium rounded-lg border border-zinc-700/80 shadow-md transition-all cursor-pointer hover:border-zinc-500"
             >
               <Layers className="w-3.5 h-3.5 text-zinc-300" />
-              <span>Inspect All 12 Screens</span>
+              <span>Inspect All 8 Screens</span>
             </button>
 
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/85 border border-zinc-800 rounded-lg text-xs font-mono-tabular text-zinc-300">
@@ -157,17 +164,18 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
         </div>
       </div>
 
-      {/* Screen Inspector Modal (Inspect any of the 12 screens at 100% full scale) */}
+      {/* Screen Inspector Modal (Inspect any of the 8 screens at 100% full scale) */}
       {showScreenInspector && (
-        <div className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-950/80">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-5xl h-[90vh] bg-zinc-900 border border-zinc-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/90">
               <div className="flex items-center gap-3">
-                <span className="font-cinzel text-lg font-bold text-white tracking-widest">
-                  BARKLEY 27" SCREEN FLOW INSPECTOR
+                <span className="font-cinzel text-lg tracking-wider font-bold text-white">
+                  BARKLEY POS INTERFACE GALLERY
                 </span>
-                <span className="text-xs text-zinc-400">
-                  Full 12-Step Checkout Experience
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono-tabular">
+                  27-Inch Portrait Touchscreen (1080 × 1920)
                 </span>
               </div>
               <button
@@ -178,23 +186,24 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
               </button>
             </div>
 
-            <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-              {/* Screen List Sidebar */}
-              <div className="w-full md:w-80 border-r border-zinc-800 p-4 overflow-y-auto flex flex-col gap-2 bg-zinc-950/50">
-                <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">
-                  Workflow Stages (12)
+            {/* Modal Body */}
+            <div className="flex-1 flex overflow-hidden">
+              {/* Left Screen Thumbnails List */}
+              <div className="w-80 border-r border-zinc-800 overflow-y-auto p-4 flex flex-col gap-2 bg-zinc-950/60">
+                <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-2 mb-1">
+                  8 Scripted Interaction Stages
                 </span>
                 {UPLOADED_SCREENS.map((scr, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedScreenIndex(idx)}
-                    className={`flex items-start gap-3 p-2.5 rounded-xl border text-left transition-colors cursor-pointer ${
+                    className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                       selectedScreenIndex === idx
-                        ? 'bg-zinc-800 border-emerald-500 text-white shadow-sm'
-                        : 'border-zinc-800 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-200'
+                        ? 'bg-zinc-800 border-emerald-500 shadow-md'
+                        : 'border-zinc-800/80 hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-200'
                     }`}
                   >
-                    <div className="w-12 h-16 bg-zinc-800 rounded overflow-hidden shrink-0 border border-zinc-700">
+                    <div className="w-12 h-16 rounded bg-zinc-800 overflow-hidden shrink-0 border border-zinc-700/60">
                       <img
                         src={scr.path}
                         alt={scr.title}
@@ -206,8 +215,8 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
                         {scr.title}
                       </span>
                       <span className="text-[11px] text-zinc-400">{scr.category}</span>
-                      <span className="text-[10px] text-emerald-400 mt-1">
-                        Active in POS
+                      <span className="text-[10px] text-emerald-400 mt-0.5 font-mono-tabular">
+                        {scr.timecode}
                       </span>
                     </div>
                   </button>
@@ -223,7 +232,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
                     className="w-full h-full object-contain"
                   />
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/80 rounded-full text-xs text-white border border-white/20 font-mono-tabular">
-                    27-inch Portrait (1080 x 1920) · Mapped on Kiosk Display Glass
+                    27-inch Portrait (1080 x 1920) · Rendered on Physical Kiosk Glass
                   </div>
                 </div>
               </div>
@@ -258,8 +267,8 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
         </div>
 
         <div className="bg-zinc-900/95 border border-zinc-700/60 rounded-xl p-4 shadow-2xl flex flex-col gap-3">
-          {/* 12 Workflow Step Buttons */}
-          <div className="grid grid-cols-6 sm:grid-cols-12 gap-1 pb-1 border-b border-zinc-800/80">
+          {/* 8 Revised Scripted Stage Buttons */}
+          <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 pb-1 border-b border-zinc-800/80">
             {WORKFLOW_STEPS.map((st) => {
               const isActive =
                 currentTime >= st.startTime && currentTime < st.endTime;
@@ -267,18 +276,23 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
                 <button
                   key={st.id}
                   onClick={() => onSeek(st.startTime)}
-                  className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-center transition-all cursor-pointer ${
+                  className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg text-center transition-all cursor-pointer ${
                     isActive
                       ? 'bg-zinc-800 border border-emerald-500 text-white shadow-xs'
                       : 'hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-200'
                   }`}
-                  title={`${st.number}. ${st.name}`}
+                  title={`${st.number}. ${st.name} (${st.timecode})`}
                 >
-                  <span className="text-[10px] font-mono-tabular font-bold text-emerald-400">
-                    {st.number}
-                  </span>
-                  <span className="text-[10px] font-medium leading-tight truncate w-full">
-                    {st.name.split(' ')[0]}
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] font-mono-tabular font-bold text-emerald-400">
+                      {st.number}
+                    </span>
+                    <span className="text-[9px] text-zinc-500 font-mono-tabular">
+                      {st.timecode.split('–')[0]}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-medium leading-tight truncate w-full mt-0.5">
+                    {st.name}
                   </span>
                 </button>
               );
@@ -293,7 +307,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
                   {formatTime(currentTime)}
                 </span>
                 <span className="text-zinc-500">/</span>
-                <span className="text-zinc-400">{formatTime(TOTAL_DURATION)}</span>
+                <span className="text-zinc-400">{formatTime(TOTAL_DURATION)} (3:00)</span>
                 <span className="text-zinc-600">·</span>
                 <span className="text-zinc-400">
                   Frame {currentFrame} / {TOTAL_FRAMES}
@@ -303,7 +317,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
               <div className="text-zinc-400 text-xs">
                 <span>Display: </span>
                 <span className="text-emerald-400 font-semibold">
-                  {UPLOADED_SCREENS[activeStep.screenIndex]?.title}
+                  {activeUiStateName || UPLOADED_SCREENS[activeStep.screenIndex]?.title}
                 </span>
               </div>
             </div>
@@ -325,7 +339,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
                   key={idx}
                   className="absolute top-1/2 -translate-y-1/2 w-1.5 h-3 bg-zinc-500/80 rounded-full pointer-events-none"
                   style={{ left: `${(st.startTime / TOTAL_DURATION) * 100}%` }}
-                  title={`${st.number}. ${st.name}`}
+                  title={`${st.number}. ${st.name} (${st.timecode})`}
                 />
               ))}
             </div>
@@ -358,7 +372,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
               >
                 {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
                 <span className="text-xs uppercase tracking-wider font-semibold">
-                  {isPlaying ? 'Pause' : 'Play Simulation'}
+                  {isPlaying ? 'Pause' : 'Play 3-Min Film'}
                 </span>
               </button>
 
@@ -398,7 +412,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
                     : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                Cinematic
+                Customer POV
               </button>
               <button
                 onClick={() => onChangeCameraMode('screen_focus')}
@@ -420,7 +434,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
                 }`}
               >
                 <CreditCard className="w-3 h-3" />
-                <span>Hardware</span>
+                <span>Hardware Focus</span>
               </button>
               <button
                 onClick={() => onChangeCameraMode('free')}
@@ -438,8 +452,22 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
             {/* Utilities */}
             <div className="flex items-center gap-1.5">
               <button
+                onClick={onToggleHand}
+                title={isHandVisible ? 'Hide Customer Hand Interaction (V)' : 'Show Customer Hand Interaction (V)'}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
+                  isHandVisible
+                    ? 'bg-zinc-800 border-emerald-500/80 text-emerald-300 shadow-xs'
+                    : 'bg-zinc-800/60 border-zinc-700/60 text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                <Hand className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Hand:</span>
+                <span>{isHandVisible ? 'ON' : 'OFF'}</span>
+              </button>
+
+              <button
                 onClick={onToggleMute}
-                title={isMuted ? 'Unmute Audio (Haptic Touch Chimes)' : 'Mute Audio'}
+                title={isMuted ? 'Unmute Audio (Dispensary Soundscape & Chimes)' : 'Mute Audio'}
                 className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
               >
                 {isMuted ? <VolumeX className="w-4 h-4 text-zinc-500" /> : <Volume2 className="w-4 h-4" />}
@@ -457,6 +485,25 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Minimalist Cinematic HUD when collapsed (from user demo design) */}
+      {isCollapsed && (
+        <>
+          <div className="absolute top-4 left-4 z-20 pointer-events-none text-white drop-shadow-md flex flex-col gap-0.5">
+            <div className="text-sm font-bold font-cinzel tracking-wider text-emerald-400">
+              BARKLEY — {activeStep.name}
+            </div>
+            <div className="text-xs text-zinc-300 font-medium">{activeStep.description}</div>
+          </div>
+
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-3/5 h-1 bg-zinc-800/90 rounded-full overflow-hidden pointer-events-none z-10 shadow-lg">
+            <div
+              className="h-full bg-emerald-500 transition-all duration-150"
+              style={{ width: `${(currentTime / TOTAL_DURATION) * 100}%` }}
+            />
+          </div>
+        </>
+      )}
     </>
   );
 };
