@@ -1,267 +1,453 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { CameraMode, TOTAL_DURATION, FPS } from './scene/types';
-import { initThreeScene, SceneManager } from './scene/sceneManager';
-import { audioSynth } from './scene/audioSynth';
-import { DirectorSuite } from './components/DirectorSuite';
-
+import { lazy, Suspense, useState } from "react";
+import { PayPalCheckout } from "./demo/PayPalCheckout";
+import "./demo/demo.css";
+const Immersive = lazy(() => import("./demo/Immersive"));
+const Cinematic = lazy(() => import("./CinematicDemo"));
+type Mode = "desktop" | "vr";
+type Receipt = {
+  id: string;
+  captureId: string;
+  mode: Mode;
+  amount: string;
+  currency: string;
+};
+const steps = ["Verify", "Review", "Pay", "Receipt"];
 export default function App() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const sceneManagerRef = useRef<SceneManager | null>(null);
-  const animFrameIdRef = useRef<number>(0);
-  const lastTimestampRef = useRef<number>(0);
-
-  // Master Director State
-  const [currentTime, setCurrentTime] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
-  const [cameraMode, setCameraMode] = useState<CameraMode>('cinematic');
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  const [isHandVisible, setIsHandVisible] = useState<boolean>(false);
-
-  // Active Camera & Shot Info for HUD
-  const [cameraInfo, setCameraInfo] = useState<{
-    lensMm: number;
-    shotName: string;
-    description: string;
-    stepNumber: string;
-    activeUiStateName?: string;
-  }>({
-    lensMm: 45,
-    shotName: '01. Entrance & Wall POS (0:00–0:20)',
-    description: 'Enter the 500 sq ft boutique dispensary through the front door; the Barley POS is mounted directly on the wall.',
-    stepNumber: '01',
-    activeUiStateName: '01. Welcome to Barley',
-  });
-
-  // Keep ref for use in animation loop without tearing down
-  const stateRef = useRef({
-    currentTime: 0,
-    isPlaying: true,
-    playbackSpeed: 1.0,
-    cameraMode: 'cinematic' as CameraMode,
-  });
-
-  useEffect(() => {
-    stateRef.current.currentTime = currentTime;
-    stateRef.current.isPlaying = isPlaying;
-    stateRef.current.playbackSpeed = playbackSpeed;
-    stateRef.current.cameraMode = cameraMode;
-  }, [currentTime, isPlaying, playbackSpeed, cameraMode]);
-
-  // Direct Seek Handler
-  const handleSeek = useCallback((time: number) => {
-    const clamped = Math.max(0, Math.min(TOTAL_DURATION, time));
-    setCurrentTime(clamped);
-    stateRef.current.currentTime = clamped;
-    if (sceneManagerRef.current) {
-      const info = sceneManagerRef.current.render(clamped, stateRef.current.cameraMode);
-      setCameraInfo(info);
-    }
-  }, []);
-
-  const handleStepFrame = useCallback(
-    (direction: number) => {
-      setIsPlaying(false);
-      stateRef.current.isPlaying = false;
-      const dt = direction * (1 / FPS);
-      handleSeek(stateRef.current.currentTime + dt);
-    },
-    [handleSeek]
-  );
-
-  const handleReplay = useCallback(() => {
-    handleSeek(0);
-    setIsPlaying(true);
-    stateRef.current.isPlaying = true;
-  }, [handleSeek]);
-
-  const handleTogglePlay = useCallback(() => {
-    setIsPlaying((prev) => {
-      const next = !prev;
-      stateRef.current.isPlaying = next;
-      // If restarting from end, reset to 0
-      if (next && stateRef.current.currentTime >= TOTAL_DURATION) {
-        handleSeek(0);
-      }
-      return next;
-    });
-  }, [handleSeek]);
-
-  const handleToggleMute = useCallback(() => {
-    setIsMuted((prev) => {
-      const next = !prev;
-      audioSynth.setMuted(next);
-      return next;
-    });
-  }, []);
-
-  const handleToggleHand = useCallback(() => {
-    if (!sceneManagerRef.current) return;
-    const next = sceneManagerRef.current.toggleHand();
-    setIsHandVisible(next);
-  }, []);
-
-  const handleExportSnapshot = useCallback(() => {
-    if (!sceneManagerRef.current) return;
-    const dataUrl = sceneManagerRef.current.captureSnapshot();
-    const frameNumber = Math.floor(stateRef.current.currentTime * FPS);
-    const link = document.createElement('a');
-    link.download = `barley-directive-001-frame-${frameNumber.toString().padStart(4, '0')}.png`;
-    link.href = dataUrl;
-    link.click();
-  }, []);
-
-  // Keyboard Navigation & Shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-      switch (e.code) {
-        case 'Space':
-          e.preventDefault();
-          handleTogglePlay();
-          break;
-        case 'KeyR':
-          e.preventDefault();
-          handleReplay();
-          break;
-        case 'KeyV':
-          e.preventDefault();
-          handleToggleHand();
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          handleStepFrame(-1);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          handleStepFrame(1);
-          break;
-        case 'KeyH':
-          e.preventDefault();
-          setIsCollapsed((prev) => !prev);
-          break;
-        case 'Digit1':
-          setCameraMode('cinematic');
-          break;
-        case 'Digit2':
-          setCameraMode('screen_focus');
-          break;
-        case 'Digit3':
-          setCameraMode('hardware_focus');
-          break;
-        case 'Digit4':
-          setCameraMode('free');
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleTogglePlay, handleReplay, handleStepFrame]);
-
-  // Three.js Lifecycle & Animation Loop
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const sceneManager = initThreeScene(canvas);
-    sceneManagerRef.current = sceneManager;
-
-    const handleResize = () => {
-      if (!canvas.parentElement) return;
-      const width = canvas.parentElement.clientWidth;
-      const height = canvas.parentElement.clientHeight;
-      sceneManager.resize(width, height);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    lastTimestampRef.current = performance.now();
-
-    const loop = (timestamp: number) => {
-      const rawDt = (timestamp - lastTimestampRef.current) / 1000;
-      lastTimestampRef.current = timestamp;
-      const dt = Math.min(rawDt, 0.1); // Clamp to prevent spikes
-
-      if (stateRef.current.isPlaying) {
-        let nextTime = stateRef.current.currentTime + dt * stateRef.current.playbackSpeed;
-        if (nextTime >= TOTAL_DURATION) {
-          // Pause at end frame 600 or smooth loop
-          nextTime = TOTAL_DURATION;
-          setIsPlaying(false);
-          stateRef.current.isPlaying = false;
-        }
-        stateRef.current.currentTime = nextTime;
-        setCurrentTime(nextTime);
-      }
-
-      // Render deterministic frame
-      const info = sceneManager.render(
-        stateRef.current.currentTime,
-        stateRef.current.cameraMode
+  const [name, setName] = useState(""),
+    [draft, setDraft] = useState("");
+  const [mode, setMode] = useState<Mode | null>(null),
+    [cinematic, setCinematic] = useState(false);
+  const [step, setStep] = useState(0),
+    [region, setRegion] = useState("CA");
+  const [scenario, setScenario] = useState("adult"),
+    [ack, setAck] = useState(false);
+  const [receipt, setReceipt] = useState<Receipt | null>(null),
+    [history, setHistory] = useState<Receipt[]>([]);
+  const [issue, setIssue] = useState(""),
+    [rails, setRails] = useState(false);
+  function reset(next: Mode | null) {
+    setMode(next);
+    setStep(0);
+    setReceipt(null);
+    setAck(false);
+    setScenario("adult");
+    setIssue("");
+  }
+  function advance() {
+    if (step === 0 && scenario !== "adult") {
+      setIssue(
+        scenario === "minor"
+          ? "Under 21: checkout blocked."
+          : "ID mismatch: checkout blocked pending staff review.",
       );
-      setCameraInfo(info);
-
-      animFrameIdRef.current = requestAnimationFrame(loop);
-    };
-
-    animFrameIdRef.current = requestAnimationFrame(loop);
-
-    return () => {
-      cancelAnimationFrame(animFrameIdRef.current);
-      window.removeEventListener('resize', handleResize);
-      sceneManager.dispose();
-      sceneManagerRef.current = null;
-    };
-  }, []);
-
+      return;
+    }
+    if (step === 1 && !ack) {
+      setIssue("Review and acknowledge the product information first.");
+      return;
+    }
+    setIssue("");
+    setStep(step + 1);
+  }
+  const titles = [
+    "Verify eligibility",
+    "Know what you are buying",
+    "Complete a test payment",
+    "Your test receipt",
+  ];
+  const details = [
+    "Synthetic identity scenarios only. No face or ID images collected.",
+    "Review labeled amounts and risks before proceeding.",
+    "Leave VR to pay with a PayPal Sandbox buyer account in the browser.",
+    "The server verifies a completed Sandbox capture before showing a receipt.",
+  ];
+  if (cinematic)
+    return (
+      <>
+        <button className="cinematic-back" onClick={() => setCinematic(false)}>
+          ← Demo lobby
+        </button>
+        <Suspense fallback={<p>Loading cinematic…</p>}>
+          <Cinematic />
+        </Suspense>
+      </>
+    );
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-black select-none">
-      {/* 3D WebGL Canvas Viewport */}
-      <div className="absolute inset-0 w-full h-full">
-        <canvas
-          ref={canvasRef}
-          onPointerDown={(e) => {
-            sceneManagerRef.current?.handlePointerDown(e.clientX, e.clientY);
+    <div className="demo-app">
+      <header className="demo-header">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            reset(null);
           }}
-          className="w-full h-full block touch-none cursor-pointer"
-        />
-      </div>
-
-      {/* Director Suite Controls & Cinema HUD */}
-      <DirectorSuite
-        currentTime={currentTime}
-        isPlaying={isPlaying}
-        playbackSpeed={playbackSpeed}
-        cameraMode={cameraMode}
-        lensMm={cameraInfo.lensMm}
-        shotName={cameraInfo.shotName}
-        shotDescription={cameraInfo.description}
-        stepNumber={cameraInfo.stepNumber}
-        activeUiStateName={cameraInfo.activeUiStateName}
-        isMuted={isMuted}
-        isCollapsed={isCollapsed}
-        isHandVisible={isHandVisible}
-        onTogglePlay={handleTogglePlay}
-        onReplay={handleReplay}
-        onSeek={handleSeek}
-        onStepFrame={handleStepFrame}
-        onChangeSpeed={setPlaybackSpeed}
-        onChangeCameraMode={setCameraMode}
-        onToggleMute={handleToggleMute}
-        onToggleHand={handleToggleHand}
-        onToggleCollapse={() => setIsCollapsed((prev) => !prev)}
-        onExportSnapshot={handleExportSnapshot}
-      />
+        >
+          BARKLEY<span>Retail, considered.</span>
+        </a>
+        <div>
+          <span className="sandbox-badge">SANDBOX · NO REAL MONEY</span>
+          {name && (
+            <button
+              className="subtle"
+              onClick={() => {
+                setName("");
+                setHistory([]);
+                reset(null);
+              }}
+            >
+              Sign out
+            </button>
+          )}
+        </div>
+      </header>
+      {!name ? (
+        <main className="login-layout">
+          <section>
+            <p className="eyebrow">THE BARKLEY EXPERIENCE</p>
+            <h1>
+              A better way
+              <br />
+              to check out.
+            </h1>
+            <p className="lede">
+              Explore the counter on desktop, or stand in front of it in VR.
+            </p>
+            <div className="login-lines">
+              <span>01 / Verify eligibility</span>
+              <span>02 / Understand the product</span>
+              <span>03 / Test checkout</span>
+            </div>
+          </section>
+          <form
+            className="demo-card"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (draft.trim()) setName(draft.trim());
+            }}
+          >
+            <p className="eyebrow">JUDGES & GUESTS</p>
+            <h2>Enter the demo</h2>
+            <p>No account or password needed. Your name stays in this tab.</p>
+            <label htmlFor="guest-name">Your name</label>
+            <input
+              id="guest-name"
+              required
+              maxLength={60}
+              autoComplete="off"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Alex Morgan"
+            />
+            <button className="primary" type="submit">
+              Continue to demo lobby →
+            </button>
+            <small>
+              Demo sign-in does not verify identity or create a secure account.
+            </small>
+          </form>
+        </main>
+      ) : !mode ? (
+        <main className="lobby">
+          <p className="eyebrow">WELCOME, {name.toUpperCase()}</p>
+          <h1>Choose your perspective.</h1>
+          <p className="lede">
+            One journey. Two experiences. Complete each with its own $1.00
+            Sandbox payment.
+          </p>
+          <div className="mode-grid">
+            {(["desktop", "vr"] as Mode[]).map((choice, i) => (
+              <button
+                key={choice}
+                className="mode-card"
+                onClick={() => reset(choice)}
+              >
+                <div className={`mode-art ${choice}-art`}>
+                  <div>{choice === "desktop" ? "BARKLEY" : "STEP INSIDE."}</div>
+                </div>
+                <p className="eyebrow">
+                  0{i + 1} / {choice.toUpperCase()}
+                </p>
+                <h2>
+                  {choice === "desktop" ? "At the counter" : "Inside the store"}
+                </h2>
+                <p>
+                  {choice === "desktop"
+                    ? "A guided point of sale for mouse, keyboard, or touch."
+                    : "A 3D retail space. Use a WebXR headset or preview in your browser."}
+                </p>
+                <strong>Launch {choice} demo ↗</strong>
+                <small>
+                  {history.some((r) => r.mode === choice)
+                    ? "✓ Test checkout completed"
+                    : "PayPal Sandbox · $1.00 USD"}
+                </small>
+              </button>
+            ))}
+          </div>
+          <button className="subtle" onClick={() => setCinematic(true)}>
+            Watch original cinematic →
+          </button>
+          {history.length > 0 && (
+            <p role="status">
+              {history.length} completed test payments in this session.
+            </p>
+          )}
+        </main>
+      ) : (
+        <main className="checkout-layout">
+          <div className="checkout-top">
+            <button className="subtle" onClick={() => reset(null)}>
+              ← Demo lobby
+            </button>
+            <span>
+              {mode.toUpperCase()} /{" "}
+              {region === "CA" ? "CALIFORNIA" : "NEW YORK"}
+            </span>
+          </div>
+          <nav aria-label="Checkout progress" className="step-list">
+            {steps.map((s, i) => (
+              <span
+                key={s}
+                aria-current={i === step ? "step" : undefined}
+                className={i <= step ? "active" : ""}
+              >
+                {i < step ? "✓" : `0${i + 1}`} {s}
+              </span>
+            ))}
+          </nav>
+          {mode === "vr" && (
+            <Suspense fallback={<p>Preparing immersive store…</p>}>
+              <Immersive
+                title={titles[step]}
+                detail={
+                  issue ||
+                  (step === 0
+                    ? `Synthetic scenario: ${scenario === "adult" ? "adult 21+, matching ID" : scenario === "minor" ? "under 21" : "ID mismatch"}. No actual ID or face verification.`
+                    : step === 1
+                      ? "Demo gummies: 2.5 mg THC + 5 mg CBD per serving. 10 servings. Effects can be delayed; THC may increase heart rate or anxiety. Purchase limits and lab results are not verified."
+                      : details[step])
+                }
+                action={
+                  step === 0
+                    ? "Run eligibility scenario"
+                    : step === 1
+                      ? "Acknowledge & continue"
+                      : step === 2
+                        ? "Pay in browser"
+                        : "View receipt in browser"
+                }
+                exitOnAction={step >= 2}
+                onAction={() => {
+                  if (step === 0) advance();
+                  else if (step === 1) {
+                    setAck(true);
+                    setIssue("");
+                    setStep(2);
+                  } else
+                    document
+                      .getElementById("checkout-controls")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                }}
+              />
+            </Suspense>
+          )}
+          <div className="checkout-grid" id="checkout-controls">
+            <section className="demo-card">
+              <p className="eyebrow">BARKLEY / {steps[step].toUpperCase()}</p>
+              <h1>{titles[step]}</h1>
+              {step === 0 && (
+                <>
+                  <p>
+                    This prototype uses synthetic scenarios. Government ID
+                    verification, face matching, and liveness checks are not
+                    connected.
+                  </p>
+                  <label htmlFor="region">Store location</label>
+                  <select
+                    id="region"
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                  >
+                    <option value="CA">California</option>
+                    <option value="NY">New York</option>
+                  </select>
+                  <label htmlFor="scenario">Judge’s test scenario</label>
+                  <select
+                    id="scenario"
+                    value={scenario}
+                    onChange={(e) => {
+                      setScenario(e.target.value);
+                      setIssue("");
+                    }}
+                  >
+                    <option value="adult">
+                      Adult 21+ · ID match (simulated)
+                    </option>
+                    <option value="minor">
+                      Under 21 · must block checkout
+                    </option>
+                    <option value="mismatch">ID mismatch · staff review</option>
+                  </select>
+                  <button className="primary" onClick={advance}>
+                    Run eligibility scenario →
+                  </button>
+                </>
+              )}
+              {step === 1 && (
+                <>
+                  <div className="product">
+                    <div className="product-pack">
+                      B<span>DEMO GUMMIES</span>
+                    </div>
+                    <div>
+                      <h2>Citrus gummy sample</h2>
+                      <p>Synthetic label · no goods supplied</p>
+                      <dl>
+                        <dt>THC per serving</dt>
+                        <dd>2.5 mg</dd>
+                        <dt>CBD per serving</dt>
+                        <dd>5 mg</dd>
+                        <dt>Servings</dt>
+                        <dd>10</dd>
+                        <dt>Package totals</dt>
+                        <dd>25 mg THC / 50 mg CBD</dd>
+                      </dl>
+                    </div>
+                  </div>
+                  <p>
+                    Edibles can have delayed effects. THC may increase heart
+                    rate and cause anxiety or impairment. Effects vary; these
+                    amounts do not establish a safe dose for you.
+                  </p>
+                  <p className="notice">
+                    Purchase-limit enforcement and lab verification are not
+                    connected. This synthetic cart cannot be used for regulated
+                    sales in {region === "CA" ? "California" : "New York"}.
+                  </p>
+                  <label className="check-label">
+                    <input
+                      type="checkbox"
+                      checked={ack}
+                      onChange={(e) => {
+                        setAck(e.target.checked);
+                        setIssue("");
+                      }}
+                    />
+                    I reviewed the demonstration’s product and risk information.
+                  </label>
+                  <button className="primary" onClick={advance}>
+                    Continue to Sandbox checkout →
+                  </button>
+                </>
+              )}
+              {step === 2 && (
+                <>
+                  <p>
+                    Test charge: <strong>$1.00 USD</strong>. Use a Sandbox{" "}
+                    <strong>personal buyer</strong> account, not your developer
+                    or test business account.
+                  </p>
+                  <p>
+                    Each experience creates a separate order. No products are
+                    sold or fulfilled.
+                  </p>
+                  <PayPalCheckout
+                    mode={mode}
+                    onComplete={(result) => {
+                      if (result.mode !== mode) return;
+                      setReceipt(result);
+                      setHistory((previous) =>
+                        previous.some((r) => r.id === result.id)
+                          ? previous
+                          : [...previous, result],
+                      );
+                      setStep(3);
+                    }}
+                  />
+                </>
+              )}
+              {step === 3 && receipt && (
+                <>
+                  <div className="receipt-check">✓</div>
+                  <h2>Sandbox payment captured</h2>
+                  <p>Verified on the server against PayPal Sandbox.</p>
+                  <dl className="receipt">
+                    <dt>Amount</dt>
+                    <dd>
+                      {receipt.amount} {receipt.currency}
+                    </dd>
+                    <dt>Experience</dt>
+                    <dd>{receipt.mode}</dd>
+                    <dt>Order</dt>
+                    <dd>{receipt.id}</dd>
+                    <dt>Capture</dt>
+                    <dd>{receipt.captureId}</dd>
+                  </dl>
+                  <button
+                    className="primary"
+                    onClick={() => reset(mode === "desktop" ? "vr" : "desktop")}
+                  >
+                    Try the {mode === "desktop" ? "VR" : "desktop"} experience →
+                  </button>
+                  <button className="subtle" onClick={() => reset(null)}>
+                    Return to lobby
+                  </button>
+                </>
+              )}
+              {issue && (
+                <p role="alert" className="notice">
+                  {issue}
+                </p>
+              )}
+            </section>
+            <aside className="demo-card summary">
+              <p className="eyebrow">THE DEMO ORDER</p>
+              <h2>Clarity at every step.</h2>
+              <p>
+                One synthetic sample cart.
+                <br />
+                One independently verified test payment.
+              </p>
+              <div className="total">
+                <span>Sandbox total</span>
+                <strong>$1.00</strong>
+              </div>
+              <p className="notice">
+                Identity verification is simulated. Live payment acceptance,
+                regulatory compliance, and product safety are not established by
+                this demo.
+              </p>
+              <button
+                className="subtle"
+                onClick={() => setRails(!rails)}
+                aria-expanded={rails}
+              >
+                Ganzevoort concept {rails ? "−" : "+"}
+              </button>
+              {rails && (
+                <div className="rails">
+                  <p>Illustrative architecture only</p>
+                  <ol>
+                    <li>Customer authorizes payment</li>
+                    <li>Reserve and conversion service (proposed)</li>
+                    <li>Merchant settlement rail (proposed)</li>
+                    <li>Merchant receives confirmation</li>
+                  </ol>
+                  <p>
+                    Only PayPal Sandbox is connected. No reserves, crypto
+                    conversion, stablecoins, or central-bank systems are
+                    connected.
+                  </p>
+                </div>
+              )}
+            </aside>
+          </div>
+        </main>
+      )}
+      <footer className="demo-footer">
+        BARKLEY × GANZEVOORT
+        <span>Concept demonstration · Sandbox payments only</span>
+      </footer>
     </div>
   );
 }
