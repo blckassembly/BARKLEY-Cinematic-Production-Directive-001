@@ -111,6 +111,13 @@ export function initThreeScene(canvas: HTMLCanvasElement): SceneManager {
   scene.add(kioskSpot);
   scene.add(kioskSpot.target);
 
+  // 4. Accent spotlight on isolated Budtender Checkout Counter (rear corner)
+  const checkoutSpot = new THREE.SpotLight(0xfff5e6, 1.6, 7, Math.PI / 3.5, 0.5, 1.0);
+  checkoutSpot.position.set(2.1, 3.0, -1.8);
+  checkoutSpot.target.position.set(2.1, 0.95, -3.4);
+  scene.add(checkoutSpot);
+  scene.add(checkoutSpot.target);
+
   // Dispensary Corner Environment
   const dispensaryEnv = createDispensaryEnvironment(isSoftwareGl);
   scene.add(dispensaryEnv.group);

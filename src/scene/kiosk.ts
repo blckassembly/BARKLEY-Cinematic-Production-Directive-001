@@ -16,41 +16,28 @@ export interface KioskController {
 }
 
 /**
- * Creates the clean, modern 27-inch portrait screen display.
- * All obstructive black bezels, chassis boxes, and occluding panels have been removed.
- * The screen is 100% unobstructed, front-facing, and illuminated with MeshBasicMaterial.
+ * Creates the clean, modern 27-inch portrait screen display mounted directly to the entrance wall.
+ * As soon as customers enter the dispensary door, the POS is immediately on the wall.
+ * Unobstructed, front-facing, and illuminated with self-illuminating MeshBasicMaterial.
  */
 export function createBarkleyKiosk(isSoftwareGl: boolean, screenTexture?: THREE.Texture): KioskController {
   const group = new THREE.Group();
-  group.name = 'BarkleyPortraitDisplay';
+  group.name = 'BarleyPortraitDisplay';
 
-  // Position screen display centered at eye-level
+  // Position screen display centered at eye-level on entrance wall
   group.position.set(0, 0, 0);
 
-  // Slim architectural floor stand (ultra-minimal, unobtrusive base)
-  const standMat = new THREE.MeshStandardMaterial({
-    color: 0x222222,
-    metalness: 0.8,
+  // Architectural Bronze Wall-Mount Bracket (flush behind screen)
+  const mountMat = new THREE.MeshStandardMaterial({
+    color: 0x1f2421,
+    metalness: 0.85,
     roughness: 0.25,
   });
 
-  const baseGeo = new THREE.CylinderGeometry(0.24, 0.28, 0.04, 32);
-  const baseMesh = new THREE.Mesh(baseGeo, standMat);
-  baseMesh.position.y = 0.02;
-  baseMesh.receiveShadow = !isSoftwareGl;
-  group.add(baseMesh);
-
-  // Slim vertical support column behind the screen
-  const poleGeo = new THREE.CylinderGeometry(0.028, 0.028, 0.88, 24);
-  const poleMesh = new THREE.Mesh(poleGeo, standMat);
-  poleMesh.position.set(0, 0.46, -0.04);
-  poleMesh.castShadow = !isSoftwareGl;
-  group.add(poleMesh);
-
-  // Slim mounting bracket behind screen (does NOT protrude in front)
-  const bracketGeo = new THREE.BoxGeometry(0.18, 0.24, 0.03);
-  const bracketMesh = new THREE.Mesh(bracketGeo, standMat);
-  bracketMesh.position.set(0, 1.25, -0.03);
+  // Slim flush wall bracket behind screen (z = -0.025 to 0)
+  const bracketGeo = new THREE.BoxGeometry(0.24, 0.32, 0.025);
+  const bracketMesh = new THREE.Mesh(bracketGeo, mountMat);
+  bracketMesh.position.set(0, 1.25, -0.015);
   group.add(bracketMesh);
 
   // 27-inch portrait touchscreen display (0.42m x 0.74m)
@@ -68,9 +55,8 @@ export function createBarkleyKiosk(isSoftwareGl: boolean, screenTexture?: THREE.
   });
 
   const screenMesh = new THREE.Mesh(screenGeo, screenMat);
-  screenMesh.name = 'Barkley27InchScreen';
-  // Positioned directly at eye level (y = 1.25), facing straight forward (+Z)
-  // ZERO black bezel or chassis covering the front!
+  screenMesh.name = 'Barley27InchScreen';
+  // Positioned directly at eye level (y = 1.25), facing straight forward (+Z) towards the entrance path
   screenMesh.position.set(0, 1.25, 0);
   screenMesh.renderOrder = 999;
   group.add(screenMesh);
@@ -79,29 +65,6 @@ export function createBarkleyKiosk(isSoftwareGl: boolean, screenTexture?: THREE.
   const screenFaceAnchor = new THREE.Object3D();
   screenFaceAnchor.position.set(0, 1.25, 0.02);
   group.add(screenFaceAnchor);
-
-  // Contact shadow on floor
-  const shadowGeo = new THREE.PlaneGeometry(0.9, 0.9);
-  const shadowCanvas = document.createElement('canvas');
-  shadowCanvas.width = 64;
-  shadowCanvas.height = 64;
-  const sCtx = shadowCanvas.getContext('2d')!;
-  const grad = sCtx.createRadialGradient(32, 32, 6, 32, 32, 32);
-  grad.addColorStop(0, 'rgba(0,0,0,0.5)');
-  grad.addColorStop(1, 'rgba(0,0,0,0)');
-  sCtx.fillStyle = grad;
-  sCtx.fillRect(0, 0, 64, 64);
-  const shadowTex = new THREE.CanvasTexture(shadowCanvas);
-  const shadowMat = new THREE.MeshBasicMaterial({
-    map: shadowTex,
-    transparent: true,
-    opacity: 0.75,
-    depthWrite: false,
-  });
-  const contactShadow = new THREE.Mesh(shadowGeo, shadowMat);
-  contactShadow.rotation.x = -Math.PI / 2;
-  contactShadow.position.y = 0.005;
-  group.add(contactShadow);
 
   function update(time: number, checkoutAnimation?: CheckoutAnimationState) {
     // Screen texture mapping is managed directly by ScreenTextureCycler
@@ -121,13 +84,8 @@ export function createBarkleyKiosk(isSoftwareGl: boolean, screenTexture?: THREE.
     dispose: () => {
       screenGeo.dispose();
       screenMat.dispose();
-      baseGeo.dispose();
-      poleGeo.dispose();
       bracketGeo.dispose();
-      standMat.dispose();
-      shadowGeo.dispose();
-      shadowTex.dispose();
-      shadowMat.dispose();
+      mountMat.dispose();
     },
   };
 }

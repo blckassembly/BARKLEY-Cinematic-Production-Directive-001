@@ -38,6 +38,10 @@ interface DirectorSuiteProps {
   shotDescription: string;
   stepNumber: string;
   activeUiStateName?: string;
+  focusTargetName?: string;
+  focalDistance?: number;
+  flareIntensity?: number;
+  bloomStrength?: number;
   isMuted: boolean;
   isCollapsed: boolean;
   isHandVisible: boolean;
@@ -63,6 +67,10 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
   shotDescription,
   stepNumber,
   activeUiStateName,
+  focusTargetName,
+  focalDistance,
+  flareIntensity,
+  bloomStrength,
   isMuted,
   isCollapsed,
   isHandVisible,
@@ -156,6 +164,21 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
               <Camera className="w-3.5 h-3.5 text-zinc-400" />
               <span>{cameraMode === 'free' ? '360° Orbit' : `${lensMm}mm Lens`}</span>
             </div>
+
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/85 border border-zinc-800 rounded-lg text-xs font-mono-tabular text-zinc-300" title="Bokeh Depth of Field Dynamic Rack Focus">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="text-zinc-400">DOF:</span>
+              <span className="text-emerald-300 font-medium truncate max-w-[150px]">{focusTargetName || '27" Display'}</span>
+              {focalDistance ? <span className="text-zinc-500 text-[10px]">({focalDistance}m)</span> : null}
+            </div>
+
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900/85 border border-zinc-800 rounded-lg text-xs font-mono-tabular text-zinc-300" title="UnrealBloomPass & Anamorphic Lens Flare">
+              <Sparkles className={`w-3.5 h-3.5 ${flareIntensity && flareIntensity > 0.4 ? 'text-emerald-400' : 'text-zinc-400'}`} />
+              <span className="text-zinc-400">Optics:</span>
+              <span className={flareIntensity && flareIntensity > 0.4 ? 'text-emerald-300 font-semibold' : 'text-zinc-300'}>
+                Glow{flareIntensity && flareIntensity > 0.4 ? ' · Flare Pulse' : ''}
+              </span>
+            </div>
           </div>
 
           <span className="text-xs text-zinc-400 max-w-md text-right truncate">
@@ -172,7 +195,7 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
             <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/90">
               <div className="flex items-center gap-3">
                 <span className="font-cinzel text-lg tracking-wider font-bold text-white">
-                  BARKLEY POS INTERFACE GALLERY
+                  BARLEY POS INTERFACE GALLERY
                 </span>
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono-tabular">
                   27-Inch Portrait Touchscreen (1080 × 1920)

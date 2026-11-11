@@ -92,57 +92,63 @@ export function createCameraDirector(
     const subtleBreath = Math.sin(time * 0.4) * 0.008;
 
     if (time < 20.0) {
-      // 0:00–0:20: Stage 1 — Approach & Reveal with screen front and center
+      // 0:00–0:20: Stage 1 — Entering the 500 sq ft store through the front door
+      // Camera begins at entrance threshold (x=0.85, z=2.1) and glides smoothly in toward the wall POS (x=0, z=0)
       const p = Math.min(1.0, time / 20.0);
-      const angle = (1.0 - p) * 0.18; // Smooth subtle approach
-      const dist = 1.65 - p * 0.35; // 1.65m smoothly gliding to 1.30m
-      _camTarget.set(
-        Math.sin(angle) * dist,
-        1.28 - p * 0.03,
-        Math.cos(angle) * dist
-      );
+      const easeP = p * p * (3 - 2 * p); // Smooth cubic ease
+      const startX = 0.85;
+      const startZ = 2.15;
+      const startY = 1.42;
+
+      const curX = startX * (1.0 - easeP);
+      const curZ = THREE.MathUtils.lerp(startZ, 1.28, easeP);
+      const curY = THREE.MathUtils.lerp(startY, 1.25, easeP);
+
+      _camTarget.set(curX, curY, curZ);
       _lookTarget.set(0, 1.25, 0);
-      targetFov = 44.0;
+      targetFov = 46.0 - easeP * 3.0;
     } else if (time < 45.0) {
-      // 0:20–0:45: Stage 2 — Direct customer eye-level POV for DOB verification
-      _camTarget.set(subtleBreath, 1.25, 1.30);
-      _lookTarget.set(0, 1.25, 0);
-      targetFov = 43.5;
-    } else if (time < 65.0) {
-      // 0:45–1:05: Stage 3 — Camera / Face ID alignment
-      _camTarget.set(0, 1.30, 1.22);
-      _lookTarget.set(0, 1.30, 0);
-      targetFov = 42.0;
-    } else if (time < 95.0) {
-      // 1:05–1:35: Stage 4 — Product catalog browsing
+      // 0:20–0:45: Stage 2 — Direct customer eye-level POV for DOB verification at entrance wall
       _camTarget.set(subtleBreath, 1.25, 1.28);
       _lookTarget.set(0, 1.25, 0);
-      targetFov = 43.5;
+      targetFov = 43.0;
+    } else if (time < 65.0) {
+      // 0:45–1:05: Stage 3 — Camera / Face ID alignment
+      _camTarget.set(0, 1.28, 1.22);
+      _lookTarget.set(0, 1.28, 0);
+      targetFov = 42.0;
+    } else if (time < 95.0) {
+      // 1:05–1:35: Stage 4 — Product catalog browsing while maintaining sightline to store
+      _camTarget.set(subtleBreath, 1.25, 1.26);
+      _lookTarget.set(0, 1.25, 0);
+      targetFov = 43.0;
     } else if (time < 125.0) {
       // 1:35–2:05: Stage 5 — Product details & advisory
       _camTarget.set(0, 1.24, 1.24);
       _lookTarget.set(0, 1.24, 0);
-      targetFov = 43.0;
+      targetFov = 42.5;
     } else if (time < 155.0) {
       // 2:05–2:35: Stage 6 — Cart summary and crypto checkout
       _camTarget.set(0, 1.22, 1.22);
       _lookTarget.set(0, 1.22, 0);
-      targetFov = 42.5;
+      targetFov = 42.0;
     } else if (time < 170.0) {
-      // 2:35–2:50: Stage 7 — Order confirmation (#2847)
-      _camTarget.set(0, 1.25, 1.26);
-      _lookTarget.set(0, 1.25, 0);
-      targetFov = 43.5;
+      // 2:35–2:50: Stage 7 — Order confirmation (#2847) with sightline connection to isolated pickup counter
+      const p = (time - 155.0) / 15.0;
+      _camTarget.set(p * 0.22, 1.26, 1.32 + p * 0.15);
+      // Subtle glance angled toward the rear pickup counter in the distance
+      _lookTarget.set(p * 0.35, 1.25, -p * 0.4);
+      targetFov = 44.0;
     } else {
-      // 2:50–3:00: Stage 8 — Closing wide showroom pull-back
+      // 2:50–3:00: Stage 8 — Closing wide 500 sq ft boutique pull-back showing entrance POS and distant checkout counter
       const p = (time - 170.0) / 10.0;
       _camTarget.set(
-        p * 0.35,
-        1.25 + p * 0.15,
-        1.30 + p * 0.65
+        0.35 + p * 0.45,
+        1.32 + p * 0.35,
+        1.45 + p * 0.85
       );
-      _lookTarget.set(0, 1.25, 0);
-      targetFov = 44.0 + p * 3.0;
+      _lookTarget.set(0.2, 1.2, -0.6);
+      targetFov = 45.0 + p * 4.0;
     }
 
     camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.08);

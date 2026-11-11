@@ -33,10 +33,10 @@ export default function App() {
     activeUiStateName?: string;
   }>({
     lensMm: 45,
-    shotName: '01. Cinematic Reveal (0:00–0:20)',
-    description: 'Cinematic architectural reveal of the BARKLEY kiosk centerpiece and 27" display.',
+    shotName: '01. Entrance & Wall POS (0:00–0:20)',
+    description: 'Enter the 500 sq ft boutique dispensary through the front door; the Barley POS is mounted directly on the wall.',
     stepNumber: '01',
-    activeUiStateName: '01. Welcome to BARKLEY',
+    activeUiStateName: '01. Welcome to Barley',
   });
 
   // Keep ref for use in animation loop without tearing down
@@ -112,7 +112,7 @@ export default function App() {
     const dataUrl = sceneManagerRef.current.captureSnapshot();
     const frameNumber = Math.floor(stateRef.current.currentTime * FPS);
     const link = document.createElement('a');
-    link.download = `barkley-directive-001-frame-${frameNumber.toString().padStart(4, '0')}.png`;
+    link.download = `barley-directive-001-frame-${frameNumber.toString().padStart(4, '0')}.png`;
     link.href = dataUrl;
     link.click();
   }, []);

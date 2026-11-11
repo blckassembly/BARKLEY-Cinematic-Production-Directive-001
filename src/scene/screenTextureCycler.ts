@@ -19,7 +19,7 @@ export interface BARKLEYScreenTextureState {
 export const BARKLEY_UI_STATES: BARKLEYScreenTextureState[] = [
   {
     id: 'attract_welcome',
-    name: '01. Welcome to BARKLEY',
+    name: '01. Welcome to Barley',
     category: 'Welcome & Attract Mode',
     startTime: 0,
     endTime: 20,
@@ -320,7 +320,7 @@ export class ScreenTextureCycler {
     this.ctx.fillStyle = '#111111';
     this.ctx.font = 'bold 72px "Cinzel", Georgia, serif';
     this.ctx.letterSpacing = '12px';
-    this.ctx.fillText('BARKLEY', 360, 420);
+    this.ctx.fillText('BARLEY', 360, 420);
 
     this.ctx.fillStyle = '#555555';
     this.ctx.font = '600 24px "Plus Jakarta Sans", sans-serif';
@@ -362,7 +362,7 @@ export class ScreenTextureCycler {
     this.ctx.fillStyle = '#111111';
     this.ctx.font = 'bold 52px "Cinzel", Georgia, serif';
     this.ctx.letterSpacing = '8px';
-    this.ctx.fillText('BARKLEY', 360, 160);
+    this.ctx.fillText('BARLEY', 360, 160);
 
     this.ctx.font = 'bold 46px "Plus Jakarta Sans", sans-serif';
     this.ctx.letterSpacing = '0px';
@@ -469,7 +469,7 @@ export class ScreenTextureCycler {
 
       this.ctx.fillStyle = '#555555';
       this.ctx.font = '400 24px "Plus Jakarta Sans", sans-serif';
-      this.ctx.fillText('Welcome to BARKLEY · Unlocking Store Menu', 360, 670);
+      this.ctx.fillText('Welcome to Barley · Unlocking Store Menu', 360, 670);
     } else {
       this.clearScreen('#0f172a');
 
@@ -792,7 +792,7 @@ export class ScreenTextureCycler {
     this.ctx.fillStyle = '#111111';
     this.ctx.font = 'bold 64px "Cinzel", Georgia, serif';
     this.ctx.letterSpacing = '14px';
-    this.ctx.fillText('BARKLEY', 360, 500);
+    this.ctx.fillText('BARLEY', 360, 500);
 
     this.ctx.fillStyle = '#10b981';
     this.ctx.fillRect(260, 540, 200, 4);
@@ -821,7 +821,7 @@ export class ScreenTextureCycler {
     this.ctx.fillStyle = '#9ca3af';
     this.ctx.font = '600 18px "Plus Jakarta Sans", sans-serif';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('BARKLEY POS · 27" PORTRAIT DISPLAY · VERIFIED COMPLIANCE', 360, 1205);
+    this.ctx.fillText('BARLEY POS · 27" PORTRAIT DISPLAY · VERIFIED COMPLIANCE', 360, 1205);
   }
 
   // --- SMOOTH CART SUMMARY POPUP DRAWER ---
