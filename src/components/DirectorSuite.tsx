@@ -24,9 +24,15 @@ import {
   ShoppingCart,
   Sparkles,
   Hand,
+  Check,
+  Copy,
+  ExternalLink,
+  Loader2,
+  CheckCircle2,
 } from 'lucide-react';
 import { CameraMode, TOTAL_DURATION, TOTAL_FRAMES, FPS, WORKFLOW_STEPS, WorkflowStep } from '../scene/types';
 import { UPLOADED_SCREENS } from '../scene/screenTextures';
+import { audioSynth } from '../scene/audioSynth';
 
 interface DirectorSuiteProps {
   currentTime: number;
@@ -87,6 +93,23 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
 }) => {
   const [showScreenInspector, setShowScreenInspector] = useState<boolean>(false);
   const [selectedScreenIndex, setSelectedScreenIndex] = useState<number>(0);
+  const [showPayPalModal, setShowPayPalModal] = useState<boolean>(false);
+  const [isProcessingPayPal, setIsProcessingPayPal] = useState<boolean>(false);
+  const [paypalCaptureSuccess, setPaypalCaptureSuccess] = useState<boolean>(false);
+  const [copiedEmail, setCopiedEmail] = useState<boolean>(false);
+  const [copiedPassword, setCopiedPassword] = useState<boolean>(false);
+
+  const handleSimulatePayPalPayment = () => {
+    setIsProcessingPayPal(true);
+    setPaypalCaptureSuccess(false);
+
+    setTimeout(() => {
+      setIsProcessingPayPal(false);
+      setPaypalCaptureSuccess(true);
+      audioSynth.playPaymentApproved();
+      onSeek(155.0); // Jump to Stage 7 (Order Confirmation #2847)
+    }, 1100);
+  };
 
   const currentFrame = Math.min(TOTAL_FRAMES, Math.floor(currentTime * FPS));
 
@@ -147,6 +170,18 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
             >
               <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
               <span>Cart & Pay (2:05)</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setShowPayPalModal(true);
+                onSeek(142.0); // Jump to PayPal stage
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#003087] hover:bg-[#002466] text-[#ffc439] text-xs font-semibold rounded-lg border border-[#ffc439]/70 shadow-md transition-all cursor-pointer hover:border-[#ffc439]"
+              title="Simulate PayPal Sandbox Checkout with account sb-wvvpj53776848@business.example.com"
+            >
+              <CreditCard className="w-3.5 h-3.5 text-[#ffc439]" />
+              <span>PayPal Sandbox ($148.24)</span>
             </button>
 
             <button
@@ -509,12 +544,191 @@ export const DirectorSuite: React.FC<DirectorSuiteProps> = ({
         </div>
       </div>
 
+      {/* PayPal Sandbox Checkout Simulation Modal */}
+      {showPayPalModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl bg-zinc-900 border border-zinc-700/80 rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-950/80">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#003087] flex items-center justify-center border border-[#ffc439]/40 shadow-xs">
+                  <span className="font-bold text-sm text-[#ffc439] italic">P</span>
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>PayPal Sandbox Checkout</span>
+                    <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                      Sandbox Active
+                    </span>
+                  </div>
+                  <div className="text-xs text-zinc-400">Simulate contactless order capture on Barley POS</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPayPalModal(false)}
+                className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5 overflow-y-auto max-h-[75vh]">
+              {/* Configured Merchant Card */}
+              <div className="p-3.5 bg-zinc-950/70 border border-zinc-800 rounded-xl space-y-1.5">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+                  <span>Connected Merchant Account</span>
+                  <span className="text-emerald-400 font-mono">Region: US</span>
+                </div>
+                <div className="font-mono text-sm text-zinc-200 font-medium break-all">
+                  sb-wvvpj53776848@business.example.com
+                </div>
+              </div>
+
+              {/* Order Summary */}
+              <div className="p-4 bg-zinc-950/40 border border-zinc-800/80 rounded-xl space-y-2.5">
+                <div className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                  Cart Breakdown (Order #2847)
+                </div>
+                <div className="space-y-1.5 text-xs text-zinc-300">
+                  <div className="flex justify-between">
+                    <span>Citrus Grove Botanical Gummies (10 pcs)</span>
+                    <span className="font-mono">$28.00</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Sunset Reserve Flower (3.5g)</span>
+                    <span className="font-mono">$48.00</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Solstice Live Rosin Vape (1.0g)</span>
+                    <span className="font-mono">$56.00</span>
+                  </div>
+                  <div className="flex justify-between text-zinc-400 border-t border-zinc-800/70 pt-1.5">
+                    <span>Excise & NY State Dispensary Tax</span>
+                    <span className="font-mono">$16.24</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-sm font-bold text-white border-t border-zinc-800 pt-2">
+                  <span>Total Amount Due</span>
+                  <span className="text-emerald-400 font-mono text-base">$148.24 USD</span>
+                </div>
+              </div>
+
+              {/* Sandbox Buyer Credentials Provided */}
+              <div className="p-3.5 bg-blue-950/20 border border-blue-900/40 rounded-xl space-y-2">
+                <div className="text-[11px] font-semibold uppercase tracking-wider text-blue-300 flex items-center justify-between">
+                  <span>Test Buyer Sandbox Credentials</span>
+                  <a
+                    href="https://sandbox.paypal.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 underline"
+                  >
+                    sandbox.paypal.com <ExternalLink className="w-3 h-3 inline" />
+                  </a>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="p-2 bg-zinc-900/80 border border-zinc-800 rounded-lg flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] text-zinc-400 uppercase">Sandbox Email</div>
+                      <div className="font-mono text-zinc-200 truncate max-w-[170px]" title="sb-wvvpj53776848@business.example.com">
+                        sb-wvvpj53776848@business.example.com
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard?.writeText('sb-wvvpj53776848@business.example.com');
+                        setCopiedEmail(true);
+                        setTimeout(() => setCopiedEmail(false), 2000);
+                      }}
+                      className="p-1.5 text-zinc-400 hover:text-white rounded hover:bg-zinc-800 transition-colors"
+                      title="Copy Email"
+                    >
+                      {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+
+                  <div className="p-2 bg-zinc-900/80 border border-zinc-800 rounded-lg flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] text-zinc-400 uppercase">Sandbox Password</div>
+                      <div className="font-mono text-zinc-200">4qOboO.D</div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard?.writeText('4qOboO.D');
+                        setCopiedPassword(true);
+                        setTimeout(() => setCopiedPassword(false), 2000);
+                      }}
+                      className="p-1.5 text-zinc-400 hover:text-white rounded hover:bg-zinc-800 transition-colors"
+                      title="Copy Password"
+                    >
+                      {copiedPassword ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status & Actions */}
+              {paypalCaptureSuccess ? (
+                <div className="p-4 bg-emerald-950/40 border border-emerald-500/60 rounded-xl space-y-3">
+                  <div className="flex items-center gap-2 text-emerald-300 font-bold text-sm">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                    <span>PayPal Sandbox Payment Approved!</span>
+                  </div>
+                  <div className="text-xs text-zinc-300 space-y-1 font-mono">
+                    <div>Transaction ID: <span className="text-emerald-400">PAYID-847291-884920</span></div>
+                    <div>Status: <span className="text-emerald-400">COMPLETED</span> · Amount: <span className="text-white">$148.24 USD</span></div>
+                  </div>
+                  <div className="text-xs text-emerald-200/90">
+                    The Barley POS screen has been updated and order #2847 is ready for pickup at the counter.
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowPayPalModal(false);
+                      onSeek(155.0);
+                    }}
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-md transition-colors cursor-pointer"
+                  >
+                    Close & View Order on Barley POS Screen
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3 pt-1">
+                  <button
+                    disabled={isProcessingPayPal}
+                    onClick={handleSimulatePayPalPayment}
+                    className="w-full py-3 bg-[#ffc439] hover:bg-[#f4bb33] active:bg-[#e0ab2e] text-[#003087] font-bold text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isProcessingPayPal ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-[#003087]" />
+                        <span>Authorizing PayPal Sandbox Capture...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-extrabold italic">Pay</span>
+                        <span className="font-extrabold italic text-[#0079c1]">Pal</span>
+                        <span>Complete Sandbox Payment ($148.24)</span>
+                      </>
+                    )}
+                  </button>
+                  <p className="text-[11px] text-zinc-400 text-center">
+                    Simulates PayPal webhook settlement, plays audio confirmation chime, and triggers order confirmation on the 3D kiosk.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Minimalist Cinematic HUD when collapsed (from user demo design) */}
       {isCollapsed && (
         <>
           <div className="absolute top-4 left-4 z-20 pointer-events-none text-white drop-shadow-md flex flex-col gap-0.5">
             <div className="text-sm font-bold font-cinzel tracking-wider text-emerald-400">
-              BARKLEY — {activeStep.name}
+              BARLEY — {activeStep.name}
             </div>
             <div className="text-xs text-zinc-300 font-medium">{activeStep.description}</div>
           </div>

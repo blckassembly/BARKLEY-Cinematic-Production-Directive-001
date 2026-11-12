@@ -94,8 +94,8 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
     endTime: 155,
     screenIndex: 5,
     timecode: '2:05–2:35',
-    description: 'Cart Summary drawer pops up smoothly ($148.24), followed by simulated one-tap NFC payment approval.',
-    actionText: 'Cart summary popup · One-tap contactless approval',
+    description: 'Cart Summary drawer pops up smoothly ($148.24), followed by PayPal Sandbox and one-tap payment approval.',
+    actionText: 'PayPal Sandbox simulation · Contactless approval',
     cameraFocus: 'nfc',
   },
   {

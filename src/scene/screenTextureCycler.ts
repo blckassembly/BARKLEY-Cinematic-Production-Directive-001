@@ -682,37 +682,37 @@ export class ScreenTextureCycler {
     this.renderFooter();
   }
 
-  // --- STAGE 6 (2:05–2:35): CRYPTO & CARD CHECKOUT ---
+  // --- STAGE 6 (2:05–2:35): PAYPAL SANDBOX & PAYMENT CHECKOUT ---
   private renderCryptoCheckoutScreen(time: number) {
     this.clearScreen('#ffffff');
 
     this.ctx.textAlign = 'center';
     this.ctx.fillStyle = '#111827';
     this.ctx.font = 'bold 44px "Cinzel", Georgia, serif';
-    this.ctx.fillText('Checkout', 360, 110);
+    this.ctx.fillText('Checkout', 360, 105);
 
     this.ctx.font = 'bold 30px "Plus Jakarta Sans", sans-serif';
     this.ctx.fillStyle = '#059669';
-    this.ctx.fillText('Total: $148.24', 360, 160);
+    this.ctx.fillText('Total: $148.24 USD', 360, 155);
 
     // Card Option
-    this.ctx.fillStyle = '#f3f4f6';
-    this.ctx.strokeStyle = '#e5e7eb';
+    this.ctx.fillStyle = '#f8fafc';
+    this.ctx.strokeStyle = '#e2e8f0';
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
-    this.ctx.roundRect(60, 220, 600, 110, 18);
+    this.ctx.roundRect(60, 195, 600, 95, 16);
     this.ctx.fill();
     this.ctx.stroke();
 
     this.ctx.textAlign = 'left';
     this.ctx.fillStyle = '#111827';
-    this.ctx.font = 'bold 26px "Plus Jakarta Sans", sans-serif';
+    this.ctx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
     this.ctx.fillText('Pay with Card / Apple Pay', 100, 270);
-    this.ctx.font = '400 20px "Plus Jakarta Sans", sans-serif';
+    this.ctx.font = '400 18px "Plus Jakarta Sans", sans-serif';
     this.ctx.fillStyle = '#6b7280';
     this.ctx.fillText('Contactless EMV · Tap on physical reader', 100, 305);
 
-    // Crypto Option (Highlighted)
+    // PayPal Sandbox & Payment Options
     const isPaid = time >= 147.0;
 
     this.ctx.fillStyle = isPaid ? '#ecfdf5' : '#111827';
@@ -726,24 +726,34 @@ export class ScreenTextureCycler {
     if (isPaid) {
       this.ctx.textAlign = 'center';
       this.ctx.fillStyle = '#047857';
-      this.ctx.font = 'bold 36px "Plus Jakarta Sans", sans-serif';
-      this.ctx.fillText('✓ PAYMENT APPROVED', 360, 430);
-      this.ctx.font = '600 22px "Plus Jakarta Sans", sans-serif';
-      this.ctx.fillText('Crypto Settlement Confirmed · Order #2847', 360, 470);
+      this.ctx.font = 'bold 32px "Plus Jakarta Sans", sans-serif';
+      this.ctx.fillText('✓ PAYPAL SANDBOX APPROVED', 360, 410);
+
+      this.ctx.fillStyle = '#065f46';
+      this.ctx.font = '600 18px "Plus Jakarta Sans", sans-serif';
+      this.ctx.fillText('Merchant: sb-wvvpj53776848@business.example.com', 360, 445);
+
+      this.ctx.fillStyle = '#10b981';
+      this.ctx.font = 'bold 16px "JetBrains Mono", monospace';
+      this.ctx.fillText('Capture: PAYID-847291-884 · Order #2847', 360, 475);
     } else {
       this.ctx.textAlign = 'left';
       this.ctx.fillStyle = '#ffffff';
-      this.ctx.font = 'bold 28px "Plus Jakarta Sans", sans-serif';
-      this.ctx.fillText('Pay with Crypto', 100, 420);
+      this.ctx.font = 'bold 26px "Plus Jakarta Sans", sans-serif';
+      this.ctx.fillText('PayPal Sandbox & Crypto', 100, 405);
 
-      this.ctx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
-      this.ctx.fillStyle = '#10b981';
-      this.ctx.fillText('BTC · ETH · USDC (Zero Gas Fee)', 100, 465);
+      this.ctx.font = '500 16px "JetBrains Mono", monospace';
+      this.ctx.fillStyle = '#38bdf8';
+      this.ctx.fillText('sb-wvvpj53776848@business.example.com', 100, 435);
+
+      this.ctx.font = 'bold 16px "Plus Jakarta Sans", sans-serif';
+      this.ctx.fillStyle = '#ffc439';
+      this.ctx.fillText('⚡ Pay with PayPal Sandbox or One-Tap NFC', 100, 468);
 
       this.ctx.textAlign = 'right';
-      this.ctx.fillStyle = '#10b981';
-      this.ctx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
-      this.ctx.fillText('⚡ FAST', 620, 420);
+      this.ctx.fillStyle = '#ffc439';
+      this.ctx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
+      this.ctx.fillText('PayPal', 620, 410);
     }
 
     this.renderFooter();
